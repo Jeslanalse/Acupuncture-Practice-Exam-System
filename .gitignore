@@ -1,2 +1,10 @@
 .venv
 *__pycache__
+
+# 本地鉴权数据库（运行时生成，勿入库）
+server/*.db
+server/*.db-wal
+server/*.db-shm
+
+# 本地 HTTPS 证书与私钥（首次启动自动生成，勿入库）
+server/certs/

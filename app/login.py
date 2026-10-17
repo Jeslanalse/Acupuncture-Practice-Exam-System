@@ -40,16 +40,26 @@ class Login(QWidget):
             return
 
         if not self.client.login(account, password):
-            self.on_login_failed("账号或密码错误")
+            if self.client.is_tls_error():
+                self.on_login_failed("安全连接失败，请确认证书已生成（先启动服务端）")
+            elif self.client.last_status is None:
+                self.on_login_failed("无法连接服务器，请确认服务已启动")
+            elif self.client.last_status == 401:
+                self.on_login_failed("账号或密码错误")
+            else:
+                self.on_login_failed(f"登录失败（HTTP {self.client.last_status}）")
         else:
             self.on_login_success()
 
     def on_login_success(self):
         self.login_success.emit()
 
-    def on_login_failed(self, message: str):
+    def show_warning(self, message: str):
         self.ui.textWarning.setStyleSheet("color: red;")
         self.ui.textWarning.setText(message)
+
+    def on_login_failed(self, message: str):
+        self.show_warning(message)
 
         self.ui.account.setEnabled(True)
         self.ui.password.setEnabled(True)
